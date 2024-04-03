@@ -1,4 +1,6 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.HtmlTool = exports.ObjectHelperClass = exports.StringHelper = void 0;
 class StringHelper {
     capitalizeFirstLetter(strToCapitalize) {
         return strToCapitalize[0].toUpperCase() + strToCapitalize.slice(1);
@@ -10,6 +12,7 @@ class StringHelper {
         return strInput.split(/(?=[A-Z])/).join(" ");
     }
 }
+exports.StringHelper = StringHelper;
 class ObjectHelperClass {
     getObjectValue(obj, key) {
         try {
@@ -30,6 +33,7 @@ class ObjectHelperClass {
         }
     }
 }
+exports.ObjectHelperClass = ObjectHelperClass;
 class HtmlTool {
     constructor() {
         this.any = `[.\\n\\S\\s]*?`;
@@ -99,11 +103,23 @@ class HtmlTool {
         attr = attr.replace(/\s/g, '');
         return this.matchWithErrorHandle(attr, `(?<=")${this.any}(?=")`);
     }
+    extractAttributeFromVal(input, val) {
+        return this.matchWithErrorHandle(input, `[^\\s]*(?==${this.nSpace}"${val}")`);
+    }
     extractAttribute(html, name, value = '', last = false) {
         const attrRegex = this.getAttrRegex(name, value, last);
         return this.matchWithErrorHandle(html, attrRegex);
     }
     extractAllTagWithAttr(html, tag, attr = '') {
+        let match;
+        let tagArray = [];
+        while (this.isPresent(html, this.getTagRegexp(tag, attr))) {
+            [match, html] = this.matchNReplace(html, this.getTagRegexp(tag, attr));
+            tagArray.push(match);
+        }
+        return tagArray;
+    }
+    repAllTagWithAttr(html, tag, attr = '') {
         let match;
         let tagArray = [];
         while (this.isPresent(html, this.getTagRegexp(tag, attr))) {
@@ -151,6 +167,7 @@ class HtmlTool {
         return this.replaceWithErrorHandle(html, regex, value);
     }
 }
+exports.HtmlTool = HtmlTool;
 class HtmlFormatter {
     formatHTML(html, newLineNum = 1, tabNum = 1) {
         let indent = '\n'.repeat(newLineNum);
